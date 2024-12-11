@@ -1,11 +1,19 @@
 import tkinter as tk
 from tkinter import messagebox
 
+# Global variables
+sentence = "A quick brown fox jumps over a lazy dog"
+timer_running = True
+
+
 # Function to handle key presses
 def on_key_press(event):
+    global timer_running
     if timer_running:  # Allow input only if the timer is running
         if event.char.isalpha() or event.char == " ":  # Check if key is alphabetic or a space
             input_label.config(text=input_label.cget("text") + event.char)
+        elif event.keysym == "Return":  # Check if Enter is pressed
+            end_program()
 
 # Function to handle the timer countdown
 def countdown():
@@ -16,20 +24,39 @@ def countdown():
         root.after(1000, countdown)  # Call countdown again after 1 second
     else:
         timer_running = False
-        messagebox.showinfo("Time's Up!", "We Are Done")  # Show the popup
+        end_program()
+
+# Function to end the program and display results
+def end_program():
+    global timer_running
+    timer_running = False
+
+    # Get the user input
+    user_input = input_label.cget("text")
+
+    # Compare characters
+    matched = sum(1 for i, char in enumerate(user_input) if i < len(sentence) and char == sentence[i])
+    unmatched = len(user_input) - matched
+
+    # Display the results in a popup
+    result_message = (
+        f"Matched Characters: {matched}\n"
+        f"Unmatched Characters: {unmatched}"
+    )
+    messagebox.showinfo("Results", result_message)
+
+    # Stop the program
+    root.destroy()
 
 # Create the main window
 root = tk.Tk()
 root.title("Speed Typing Test")
 root.geometry("600x400")
 
-# Global variable to track if the timer is running
-timer_running = True
-
 # Sentence label
 sentence_label = tk.Label(
     root,
-    text="A quick brown fox jumps over a lazy dog",
+    text=sentence,
     font=("Arial", 18),
     wraplength=500,
     justify="center"
